@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import "./Scheduler.css";
+import { useState } from "react";
 import { Box, Container } from "@mui/material";
-import "./App.css";
-import SchedulerDatePicker from "./components/date-picker";
-import EventsOfDayContainer from "./components/events-of-day-container";
+import SchedulerDatePicker from "./components/scheduler/date-picker";
+import EventsOfDayContainer from "./components/scheduler/events-of-day-container";
 import ConfirmationDialogue from "./components/confirmation-dialogue";
 
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
