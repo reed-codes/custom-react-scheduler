@@ -19,6 +19,7 @@ import AccessAlarmsIcon from "@mui/icons-material/AccessAlarms";
 import EditIcon from "@mui/icons-material/Edit";
 
 import AddProcedureDialogue from "./add-procedure-dialogue";
+import Chip from "@mui/material/Chip";
 
 const EventsOfDayContainer = (props) => {
   return (
@@ -62,7 +63,9 @@ const EventsOfDayContainer = (props) => {
             selectedEvent={props.selectedEvent}
             handleEditEvent={props.handleEditEvent}
             events={props.events}
+            branches={props.branches}
           />
+
           <Box sx={{ minHeight: "5px" }} />
         </Box>
 
@@ -77,6 +80,12 @@ const EventsOfDayContainer = (props) => {
 };
 
 const EventsList = (props) => {
+  const sortedEvents = props.events.sort(
+    (a, b) =>
+      new Date(a.Time.FullStart).getTime() -
+      new Date(b.Time.FullStart).getTime()
+  );
+
   return (
     <Box
       sx={{
@@ -87,11 +96,13 @@ const EventsList = (props) => {
         maxHeight: "100%",
       }}
     >
-      {props.events.map((evnt, index) => {
+      {sortedEvents.map((evnt, index) => {
         return (
           <EventListItem
             key={"event-" + index}
             event={evnt}
+            events={props.events}
+            branches={props.branches}
             select={props.select}
             edit={props.handleEditEvent}
             selectedEvent={props.selectedEvent}
@@ -196,11 +207,14 @@ const ToolBar = (props) => {
 };
 
 const EventListItem = (props) => {
-  console.log(props.event.Time);
+  const filteredBranches = props.branches.filter(
+    (branch) => branch.Name === props.event.Branch
+  );
+  const branch = filteredBranches[0];
 
   return (
     <Accordion
-      sx={{ mb: 1, borderTop: "5px #1976d3 solid" }}
+      sx={{ mb: 1, background: "#fff", borderTop: `5px ${branch.Color} solid` }}
       className="clickable"
     >
       <AccordionSummary
@@ -212,8 +226,16 @@ const EventListItem = (props) => {
           sx={{
             width: "100%",
             height: "100%",
+            position: "relative",
           }}
         >
+          <Chip
+            label={props.event.Branch}
+            sx={{ mb: 1, borderColor: branch.Color }}
+            size="small"
+            variant="outlined"
+          />
+
           <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
             <Radio
               onClick={(e) => {
@@ -287,6 +309,15 @@ const EventListItem = (props) => {
           </Typography>
           <Typography sx={{ mr: 1, fontSize: "15px" }}>
             {props.event.Surname}
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: "flex" }}>
+          <Typography sx={{ mr: 1, fontSize: "15px", fontWeight: 700 }}>
+            Radiologist :{" "}
+          </Typography>
+          <Typography sx={{ mr: 1, fontSize: "15px" }}>
+            {props.event.Radiologist}
           </Typography>
         </Box>
 

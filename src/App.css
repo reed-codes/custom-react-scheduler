@@ -10,10 +10,16 @@ body {
   box-sizing: border-box;
 }
 
+.clickable {
+  transition-property: background-color !important;
+  transition-duration: 0.3s !important;
+  background-color: #fff;
+}
+
 .clickable:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #eee;
 }
 
 .clickable:active {
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: #ddd;
 }

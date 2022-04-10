@@ -7,25 +7,44 @@ import ConfirmationDialogue from "./components/confirmation-dialogue";
 
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 
+import randomColor from "randomcolor";
 import { v4 as uuidv4 } from "uuid";
 
 const ONE_DAY_IN_MILLISECONDS = 86400000;
 
+const getBranchesWithColors = (events = [], branchesWithColors = []) => {
+  //Getting unique list of branches from available schedules
+  const branchesList = [...new Set(events.map((event) => event.Branch))];
+
+  //List of branches and their unique color
+  const branches = branchesList.map((branch) => {
+    const matches = branchesWithColors.filter((brch) => brch.Name === branch); //checking if branch already in 'branchesWithColors' array and has color
+
+    if (matches.length) return matches[0];
+    else {
+      return {
+        Name: branch,
+        Color: randomColor({
+          format: "rgba",
+          alpha: 1,
+        }),
+      };
+    }
+  });
+
+  return branches;
+};
+
 function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState([]);
+  const [eventsData, setEventsData] = useState({
+    events: [],
+    branchesWithColors: [],
+  });
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [addProcedure, setAddProceure] = useState(false);
   const [openDeleteProcedureConfirmation, setOpenDeleteProcedureConfirmation] =
     useState(false);
-
-  // useEffect(() => {
-  //   setEvents(EVENTS);
-  // }, []);
-
-  // useEffect(() => {
-  //   setEvents(EVENTS);
-  // }, [currentDate]);
 
   const handleSelectProcedure = (evnt) => {
     if (evnt.Id === selectedEvent?.Id) {
@@ -45,26 +64,7 @@ function App() {
     setAddProceure(true);
   };
 
-  const handleUpdateEvents = async (evnt, IS_UPDATE_ACTION, id) => {
-    let updateEvent = null;
-    const date = `${currentDate.getDay()}-${currentDate.getMonth()}-${currentDate.getFullYear()}`;
-
-    if (IS_UPDATE_ACTION) {
-      updateEvent = {
-        ...evnt,
-        Id: id,
-        Date: date,
-        Timestamp: currentDate.getTime(),
-      };
-    } else {
-      updateEvent = {
-        ...evnt,
-        Id: uuidv4(),
-        Date: date,
-        Timestamp: currentDate.getTime(),
-      };
-    }
-
+  const handleUpdateEvents = async (evnt, id) => {
     /*
     ====================================
       make async call [post] to update events endpoint
@@ -74,8 +74,27 @@ function App() {
     try {
       //filtering out any events with the same id so we can insert the updated version
       //happens in case of an update and does not affect addition actions
-      const filteredEvents = events.filter((event) => event.Id !== evnt.Id);
-      setEvents([...filteredEvents, evnt]);
+
+      const date = `${currentDate.getDate()}-${currentDate.getMonth()}-${currentDate.getFullYear()}`;
+
+      const updateEvent = {
+        ...evnt,
+        Id: id ? id : uuidv4(),
+        Date: date,
+      };
+
+      const filteredEvents = eventsData.events.filter(
+        (event) => event.Id !== updateEvent.Id
+      );
+
+      const updatedEventsList = [...filteredEvents, updateEvent];
+      setEventsData({
+        events: updatedEventsList,
+        branchesWithColors: getBranchesWithColors(
+          updatedEventsList,
+          eventsData.branchesWithColors
+        ),
+      });
       setSelectedEvent(null);
     } catch (err) {
       console.log(err.message);
@@ -89,7 +108,16 @@ function App() {
     ====================================
     */
     try {
-      setEvents(events.filter((event) => event.Id !== selectedEvent.Id));
+      const updatedEventsList = eventsData.events.filter(
+        (event) => event.Id !== selectedEvent.Id
+      );
+      setEventsData({
+        events: updatedEventsList,
+        branchesWithColors: getBranchesWithColors(
+          updatedEventsList,
+          eventsData.branchesWithColors
+        ),
+      });
       setSelectedEvent(null);
     } catch (err) {
       console.log(err.message);
@@ -178,7 +206,7 @@ function App() {
             <EventsOfDayContainer
               handleDayChange={handleDayChange}
               currentDate={currentDate}
-              events={events}
+              events={eventsData.events}
               addProcedure={addProcedure}
               handleSelectProcedure={handleSelectProcedure}
               handleCloseAddProcedureDialogue={handleCloseAddProcedureDialogue}
@@ -187,6 +215,7 @@ function App() {
               handleDeleteEvent={handleOpenProcedureDeleteConfirmationDialogue}
               handleEditEvent={handleEditEvent}
               selectedEvent={selectedEvent}
+              branches={eventsData.branchesWithColors}
             />
           </Box>
         </Box>

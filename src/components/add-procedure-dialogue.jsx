@@ -55,6 +55,7 @@ export default function AddProcedureDialogue(props) {
       Procedure: "",
       Name: "",
       Surname: "",
+      Radiologist:"",
       Branch: "",
     });
     props.handleClose();
@@ -97,11 +98,7 @@ export default function AddProcedureDialogue(props) {
         },
       };
 
-      props.handleUpdateEvents(
-        newProcadure,
-        IS_UPDATE_ACTION,
-        props.procedure.Id
-      );
+      props.handleUpdateEvents(newProcadure, props.procedure.Id);
       handleClose();
     }
   };
@@ -172,7 +169,18 @@ export default function AddProcedureDialogue(props) {
                 />
               </Grid>
 
-              <Grid item sm={12}>
+              <Grid item sm={6}>
+                <TextField
+                  fullWidth
+                  name="Radiologist"
+                  label="Radiologist"
+                  variant="outlined"
+                  onChange={handFieldChange}
+                  value={procedure.Radiologist}
+                />
+              </Grid>
+
+              <Grid item sm={6}>
                 <TextField
                   fullWidth
                   name="Branch"
